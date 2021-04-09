@@ -301,7 +301,23 @@ NS_ASSUME_NONNULL_BEGIN
     
     NSString *requestId = [body cdvwkStringForKey:@"id"];
     NSString *callbackFunction = [body cdvwkStringForKey:@"callback"];
-    NSString *urlString = [body cdvwkStringForKey:@"url"];
+    // NSString *urlString = [body cdvwkStringForKey:@"url"];
+
+    // URLFragmentAllowedCharacterSet  "#%<>[\]^`{|}
+    // URLHostAllowedCharacterSet      "#%/<>?@\^`{|}
+    // URLPasswordAllowedCharacterSet  "#%/:<>?@[\]^`{|}
+    // URLPathAllowedCharacterSet      "#%;<>?[\]^`{|}
+    // URLQueryAllowedCharacterSet    "#%<>[\]^`{|}
+    // URLUserAllowedCharacterSet      "#%/:<>?@[\]^`
+    /**
+     * 解决汉字或者空格等无法被识别的问题，- [characterSetWithCharactersInString:@""].invertedSet 转义 "" 里的内容 - characterSetWithCharactersInString:@"abc" 不转义 "" 里的内容，转义 abc
+     * 
+     * URLs are not properly escaped! 
+     * @see https://github.com/oracle/cordova-plugin-wkwebview-file-xhr/issues/53
+     * NativeXHR: Invalid url scheme 'null' 
+     * @see https://github.com/oracle/cordova-plugin-wkwebview-file-xhr/issues/79
+     */
+    NSString *urlString = [[body cdvwkStringForKey:@"url"] stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet characterSetWithCharactersInString:@" "].invertedSet];
     NSString *method = [body cdvwkStringForKey:@"method"];
     
     __weak WKWebView* weakWebView = webView;
